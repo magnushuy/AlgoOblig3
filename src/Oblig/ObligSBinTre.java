@@ -2,6 +2,7 @@ package Oblig;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class ObligSBinTre<T> implements Beholder<T>
 {
@@ -45,7 +46,33 @@ public class ObligSBinTre<T> implements Beholder<T>
     @Override
     public boolean leggInn(T verdi)
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        Objects.requireNonNull(verdi, "Ulovlig med nullverdier!");
+
+        Node<T> p = rot, q = null;
+        int cmp = 0;
+
+        while (p != null)
+        {
+            q = p;
+            cmp = comp.compare(verdi,p.verdi);
+            p = cmp < 0 ? p.venstre : p.høyre;
+        }
+
+
+        p = new Node<>(verdi, null);
+
+        if (q == null) rot = p;
+        else if (cmp < 0){
+            q.venstre = p;
+            p.forelder = q;
+        }
+        else {
+            q.høyre = p;
+            p.forelder = q;
+        }
+
+        antall++;
+        return true;
     }
 
     @Override
