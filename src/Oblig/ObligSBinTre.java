@@ -3,6 +3,7 @@ package Oblig;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 public class ObligSBinTre<T> implements Beholder<T>
 {
@@ -112,7 +113,24 @@ public class ObligSBinTre<T> implements Beholder<T>
 
     public int antall(T verdi)
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(verdi == null){
+            return 0;
+        }
+
+        Node<T> p = rot;
+        int a = 0;
+
+        while (p != null){
+            int cmp = comp.compare(verdi, p.verdi);
+            if(cmp < 0) p = p.venstre;
+            else{
+                if(cmp == 0) a++;
+                p = p.høyre;
+            }
+        }
+
+        return a;
+
     }
 
     @Override
@@ -129,13 +147,34 @@ public class ObligSBinTre<T> implements Beholder<T>
 
     private static <T> Node<T> nesteInorden(Node<T> p)
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(p.høyre != null){ //Hvis p har et høyre subtre
+            p = p.høyre; //Går til høyre subtre
+            while(p.venstre != null) p= p.venstre; //Går til noden lengst ned til venstr ei subtreet
+        }
+        else{
+            while(p.forelder != null && p == p.forelder.høyre){ //Hvis noden er nest sist i inorden
+                p = p.forelder;
+            }
+            p = p.forelder;
+        }
+        return p;
     }
 
     @Override
     public String toString()
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(tom()) return "[]";
+
+        StringJoiner sj = new StringJoiner(", ", "[" , "]");
+
+        Node<T> p = rot;
+        while(p.venstre != null) p = p.venstre; //Går til noden lengst nede til venstre som er første node i inorden
+
+        while(p != null){
+            sj.add(p.verdi.toString());
+            p = nesteInorden(p);
+        }
+        return sj.toString();
     }
 
     public String omvendtString()
