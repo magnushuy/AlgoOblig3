@@ -1,9 +1,7 @@
 package Oblig;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.StringJoiner;
+import java.util.*;
+
 
 public class ObligSBinTre<T> implements Beholder<T>
 {
@@ -96,13 +94,59 @@ public class ObligSBinTre<T> implements Beholder<T>
 
     @Override
     public boolean fjern(T verdi)
-    {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+    { //Kopiert fra programkode 5.2.8
+        if (verdi == null) return false;  // treet har ingen nullverdier
+
+        Node<T> p = rot, q = null;   // q skal være forelder til p
+
+        while (p != null)            // leter etter verdi
+        {
+            int cmp = comp.compare(verdi,p.verdi);      // sammenligner
+            if (cmp < 0) { q = p; p = p.venstre; }      // går til venstre
+            else if (cmp > 0) { q = p; p = p.høyre; }   // går til høyre
+            else break;    // den søkte verdien ligger i p
+        }
+        if (p == null) return false;   // finner ikke verdi
+
+        if (p.venstre == null || p.høyre == null)  // Tilfelle 1) og 2)
+        {
+            Node<T> b = p.venstre != null ? p.venstre : p.høyre;  // b for barn
+            if(b != null) b.forelder = q;
+            if (p == rot) rot = b;
+            else if (p == q.venstre){
+                q.venstre = b;
+            }
+            else {
+                q.høyre = b;
+            }
+        }
+        else  // Tilfelle 3)
+        {
+            Node<T> s = p, r = p.høyre;   // finner neste i inorden
+            while (r.venstre != null)
+            {
+                s = r;    // s er forelder til r
+                r = r.venstre;
+            }
+
+            p.verdi = r.verdi;   // kopierer verdien i r til p
+
+            if(r.høyre != null) r.høyre.forelder = s;
+
+            if (s != p) s.venstre = r.høyre;
+            else s.høyre = r.høyre;
+        }
+
+        antall--;   // det er nå én node mindre i treet
+        endringer++;
+        return true;
     }
 
     public int fjernAlle(T verdi)
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        int antFjernet = 0;
+        while(fjern(verdi)) antFjernet++;
+        return antFjernet;
     }
 
     @Override
@@ -142,7 +186,23 @@ public class ObligSBinTre<T> implements Beholder<T>
     @Override
     public void nullstill()
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(!tom()) nullstill(rot);
+        rot = null;
+        antall = 0;
+        endringer++;
+    }
+
+    private static <T> void nullstill(Node<T> p)
+    {
+        if(p.venstre != null){
+            nullstill(p.venstre);
+            p.venstre = null;
+        }
+        if(p.høyre != null){
+            nullstill(p.høyre);
+            p.høyre = null;
+        }
+        p.verdi = null;
     }
 
     private static <T> Node<T> nesteInorden(Node<T> p)
@@ -179,7 +239,33 @@ public class ObligSBinTre<T> implements Beholder<T>
 
     public String omvendtString()
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(tom()) return "[]";
+        StringJoiner sj = new StringJoiner(", ", "[" , "]");
+        ArrayDeque<Node<T>> stakk = new ArrayDeque<>();
+
+        Node<T> p = rot;
+
+        while(p.høyre != null){
+            stakk.addLast(p); //Legger til alle verdiene til høyre inn i stakken utenom siste
+            p = p.høyre;
+        }
+
+        sj.add(p.verdi.toString()); //Legger til første verdien i motsatt inorden i return-string
+
+        while(true){ //Kjør til break
+            if(p.venstre != null){
+                p = p.venstre;
+                while(p.høyre != null){
+                    stakk.addLast(p);
+                    p = p.høyre;
+                }
+            }
+            else if(!stakk.isEmpty()) p = stakk.removeLast();
+            else break;
+
+            sj.add(p.verdi.toString());
+        }
+        return sj.toString();
     }
 
     public String høyreGren()
