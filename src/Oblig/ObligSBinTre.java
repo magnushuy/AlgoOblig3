@@ -270,12 +270,41 @@ public class ObligSBinTre<T> implements Beholder<T>
 
     public String høyreGren()
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(tom()) return "[]";
+
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        Node<T> p = rot;
+        while(true){
+            sj.add(p.verdi.toString());
+            if(p.høyre != null) p = p.høyre;
+            else if(p.venstre != null) p = p.venstre;
+            else break;
+        }
+
+        return sj.toString();
     }
 
     public String lengstGren()
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(tom()) return "[]";
+
+        ArrayDeque<Node<T>> queue = new ArrayDeque<>();
+        queue.add(rot);
+
+        Node<T> p = null;
+
+        while(!queue.isEmpty()){
+            p = queue.removeFirst(); //Fjerner den første i køen
+            if(p.høyre != null) queue.addLast(p.høyre); //Legger til høyre til bakerst i køen
+            if(p.venstre != null) queue.addLast(p.venstre); //Legger til venstre bakerst i køen
+        }
+
+        ArrayDeque<T> stakk = new ArrayDeque<>(); //Lager en stakk som vi kan skrive ut
+        while(p != null){
+            stakk.addFirst(p.verdi); //Legger til verdien til p først i køen. Første verdi i stakken blir da rot, siste blir verdien til siste bladnode
+            p = p.forelder; //Går oppover i treet
+        }
+        return stakk.toString();
     }
 
     public String[] grener()
