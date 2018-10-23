@@ -309,17 +309,70 @@ public class ObligSBinTre<T> implements Beholder<T>
 
     public String[] grener()
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(tom()) return new String[0];
+        ArrayList<String> list = new ArrayList<>();
+        ArrayDeque<T> queue = new ArrayDeque<>();
+        grener(rot, list, queue);
+        String[] returnListe = new String[list.size()];
+        int i = 0;
+        for(String s : list) {
+            returnListe[i] = s;
+            i++;
+        }
+        return returnListe;
+    }
+
+    private static <T> void grener(Node<T> p, ArrayList<String> list, ArrayDeque<T> queue){
+        queue.addLast(p.verdi);
+
+        if(p.venstre != null) grener(p.venstre, list, queue);
+        if(p.høyre != null) grener(p.høyre, list, queue);
+        if(p.venstre == null && p.høyre == null) list.add(queue.toString());
+
+        queue.removeLast();
     }
 
     public String bladnodeverdier()
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(tom()) return "[]";
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        bladnodeverdier(rot, sj);
+        return sj.toString();
     }
+
+    private static <T> void bladnodeverdier(Node<T> p, StringJoiner sj){
+        if(p.venstre != null) bladnodeverdier(p.venstre, sj);
+        if(p.høyre != null) bladnodeverdier(p.høyre, sj);
+        if(p.venstre == null && p.høyre == null) sj.add(p.verdi.toString());
+    }
+
+    //Hjelpemetode for å finne forste bladnode med p som rot
+    private static <T> Node<T> forsteBladnode(Node<T> p){
+        while(true){
+            if(p.venstre != null) p = p.venstre;
+            else if(p.høyre != null) p = p.høyre;
+            else break;
+        }
+        return p;
+    }
+
+
 
     public String postString()
     {
-        throw new UnsupportedOperationException("Ikke kodet ennå!");
+        if(tom()) return "[]";
+        StringJoiner sj = new StringJoiner(", ","[","]");
+        Node<T> p = forsteBladnode(rot); //Finner første bladnode og første verdi i postorden
+
+        while(true){
+            sj.add(p.verdi.toString());
+
+            if(p.forelder == null) break; //Hvis vi er på siste verdi av postorden, bryt ut av løkken
+
+            if(p.forelder.høyre == null || p == p.forelder.høyre)p = p.forelder;
+            else p = forsteBladnode(p.forelder.høyre);
+        }
+        return sj.toString();
     }
 
     @Override
