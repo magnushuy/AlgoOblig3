@@ -71,6 +71,7 @@ public class ObligSBinTre<T> implements Beholder<T>
         }
 
         antall++;
+        endringer++;
         return true;
     }
 
@@ -356,6 +357,20 @@ public class ObligSBinTre<T> implements Beholder<T>
         return p;
     }
 
+    private static <T> Node<T> nesteBladnode(Node<T> p){
+        Node<T> f = p.forelder;
+        while(f != null && (f.høyre == p || f.høyre == null)){
+            p = f;
+            f = f.forelder;
+        }
+
+        if(f == null){
+            return null;
+        }
+
+        else return forsteBladnode(f.høyre);
+    }
+
 
 
     public String postString()
@@ -389,19 +404,27 @@ public class ObligSBinTre<T> implements Beholder<T>
 
         private BladnodeIterator()  // konstruktør
         {
-            throw new UnsupportedOperationException("Ikke kodet ennå!");
+            if(tom()) return;
+            p = forsteBladnode(p); //Hjelpemetode som finner første bladnode i subtreet p
+        }
+
+        @Override
+        public T next()
+        {
+            if(!hasNext()) throw new NoSuchElementException("Siste bladnode er oppnådd");
+            if(endringer != iteratorendringer) throw new ConcurrentModificationException("Treet har blitt endret");
+
+            q = p;
+            p = nesteBladnode(p);
+            removeOK = true;
+
+            return q.verdi;
         }
 
         @Override
         public boolean hasNext()
         {
             return p != null;  // Denne skal ikke endres!
-        }
-
-        @Override
-        public T next()
-        {
-            throw new UnsupportedOperationException("Ikke kodet ennå!");
         }
 
         @Override
