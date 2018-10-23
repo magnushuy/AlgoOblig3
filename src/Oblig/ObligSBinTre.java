@@ -430,7 +430,19 @@ public class ObligSBinTre<T> implements Beholder<T>
         @Override
         public void remove()
         {
-            throw new UnsupportedOperationException("Ikke kodet ennå!");
+            if(!removeOK) throw new IllegalStateException("removeOK er false, dermed er remove() ulovlig kalt");
+            if(endringer != iteratorendringer) throw new ConcurrentModificationException("Treet har blitt endret");
+
+            removeOK = false;
+
+            Node<T> f = q.forelder;
+            if(f == null) rot = null;
+            else if(f.venstre == q) f.venstre = null;
+            else if(f.høyre == q) f.høyre = null;
+
+            antall--;
+            iteratorendringer++;
+            endringer++;
         }
 
     } // BladnodeIterator
