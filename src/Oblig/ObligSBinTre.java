@@ -1,3 +1,11 @@
+/*
+    Huy Minh Le., s315271
+    Tam Thu Caroline Vo, s326167
+    Tora Sande Tveit, s326145
+    Piotr Jan Kusnierz, s326178
+    Kevin Nguyen Ngo, s326170
+ */
+
 package Oblig;
 
 import java.util.*;
